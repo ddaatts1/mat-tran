@@ -345,6 +345,9 @@ isWithinOneHour(timeString) {
         }
 
 
+        const slug = this.getSlugFromUrl(article.link)
+
+
 await db.execute(
   `
   INSERT INTO posts
@@ -352,7 +355,7 @@ await db.execute(
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
   [
-    article.link,                 // permalink
+    slug,                 // permalink
     article.title,                // title
     article.sapo || article.summary,
     article.contentHTML || article.summary, // content: HTML
@@ -376,6 +379,20 @@ await db.execute(
 
     console.log(`=====> DB: Inserted ${inserted} | Skipped (trùng) ${skipped}`);
   }
+
+
+  getSlugFromUrl(url) {
+    try {
+      const segments = new URL(url).pathname.split('/');
+      let slug = segments.filter(Boolean).pop() || '';
+      // Bỏ .html nếu có
+      slug = slug.replace(/\.html$/, '');
+      return slug;
+    } catch {
+      return url; // fallback nếu URL không hợp lệ
+    }
+  }
+
 
 
 async scrapeDetailPage(url) {
