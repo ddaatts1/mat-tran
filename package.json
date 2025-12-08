@@ -1,0 +1,25 @@
+{
+  "name": "mattran-scraper",
+  "version": "1.0.0",
+  "description": "Web scraper cho mattran.org.vn sử dụng Puppeteer",
+  "main": "scraper.js",
+  "scripts": {
+    "start": "node scraper.js",
+    "dev": "node scraper.js"
+  },
+  "keywords": [
+    "puppeteer",
+    "web-scraping",
+    "mattran"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mysql2": "^3.15.3",
+    "node-cron": "^4.2.1",
+    "puppeteer": "^21.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
