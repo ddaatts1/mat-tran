@@ -1,37 +1,31 @@
 const cron = require('node-cron');
 const { main } = require('./MattranScraper');
 
-console.log(' Scheduler started...');
+console.log('Scheduler started at:', new Date().toLocaleString('vi-VN'));
 
-// Chạy NGAY khi bật server
+// Chạy ngay khi start
 (async () => {
-  console.log(' Chạy lần đầu khi khởi động...');
-    console.log(' Chạy cron lúc:', new Date().toLocaleString());
-  await main();
+  try {
+    console.log('Chạy lần đầu khi khởi động...');
+    await main();
+  } catch(err){
+    console.error('Lỗi lần đầu:', err.stack||err);
+  }
 })();
 
-// Sau đó chạy mỗi 1 giờ
-cron.schedule('0 * * * *', async () => {
-  console.log(' Chạy cron lúc:', new Date().toLocaleString());
+// Cron chạy mỗi đầu giờ
+let isRunning = false;
 
+cron.schedule('0 * * * *', async () => {
+  if (isRunning) return console.log('Cron đang chạy, bỏ qua');
+  isRunning = true;
   try {
     await main();
-    console.log(' Cron chạy xong');
-  } catch (err) {
-    console.error(' Lỗi khi chạy cron:', err.message);
+  } catch(err){
+    console.error(err);
+  } finally {
+    isRunning = false;
   }
 });
 
-
-//// Chạy mỗi phút
-//cron.schedule('* * * * *', async () => {
-//  console.log(' Chạy cron lúc:', new Date().toLocaleString());
-//
-//  try {
-//    await main();
-//    console.log(' Cron chạy xong');
-//  } catch (err) {
-//    console.error(' Lỗi khi chạy cron:', err.message);
-//  }
-//});
 

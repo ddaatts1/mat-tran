@@ -79,7 +79,7 @@ this.browser = await puppeteer.launch({
   }
 
 
-async scrapeArticles(url, date, pageNum = 1) {
+async scrapeArticles(url, date, pageNum) {
   console.log(`Đang lấy dữ liệu từ: ${url}`);
 
   try {
@@ -167,45 +167,36 @@ if (!hasArticle) {
   }
 }
 
-  async scrapeAllPages(url,date, startPage = 1, endPage = null) {
-    console.log(`\n=== BẮT ĐẦU SCRAPE DỮ LIỆU ===`);
-    console.log(`link: ${url}`);
+async scrapeAllPages(url, date, startPage = 1) {
+  console.log(`\n=== BẮT ĐẦU SCRAPE DỮ LIỆU ===`);
+  console.log(`link: ${url}`);
 
-    let allArticles = [];
-    let currentPage = startPage;
+  let allArticles = [];
+  let page = startPage;
 
-    //
-    const firstResult = await this.scrapeArticles(url,date, currentPage);
+  while (true) {
+    // Tạo URL cho trang hiện tại
+    const pageUrl = url.includes('page=') ? url.replace(/page=\d+/, `page=${page}`) : url + `&page=${page}`;
 
-    // DỪNG ngay nếu trang đầu không có bài viết
-    if (firstResult.articles.length === 0) {
-      console.log(` Không có bài viết nào ở trang ${currentPage}.`);
-      return allArticles;
+    const result = await this.scrapeArticles(pageUrl, date, page);
+
+    if (result.articles.length === 0) {
+      console.log(`Không còn bài viết ở trang ${page}, dừng scrape.`);
+      break;
     }
 
-    allArticles.push(...firstResult.articles);
+    allArticles.push(...result.articles);
 
-    const maxPages = endPage || firstResult.pagination.totalPages;
+    console.log(`Đã lấy xong trang ${page}, tổng cộng hiện tại: ${allArticles.length} bài viết`);
+    page++;
 
-    // Lấy các trang còn lại
-    for (let page = startPage + 1; page <= maxPages; page++) {
-      const result = await this.scrapeArticles(url,date, page);
-
-      // DỪNG nếu trang không có bài viết nào
-      if (result.articles.length === 0) {
-        console.log(`Không có bài viết nào ở trang ${page}.`);
-        break;
-      }
-
-      allArticles.push(...result.articles);
-
-      //
-      await this.delay(1000);
-    }
-
-    console.log(`\n✓ HOÀN THÀNH: Đã lấy tổng cộng ${allArticles.length} bài viết`);
-    return allArticles;
+    await this.delay(1000); // tránh spam server
   }
+
+  console.log(`\n✓ HOÀN THÀNH: Đã lấy tổng cộng ${allArticles.length} bài viết`);
+  return allArticles;
+}
+
 
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -266,7 +257,6 @@ isWithinOneHour(timeString) {
   filterArticlesByTime(articles) {
     const filtered = articles.filter(article => {
       const isRecent = this.isWithinOneHour(article.time);
-//      const isRecent = true
 
       if (!isRecent) {
         console.log(`   Bỏ qua bài viết cũ: ${article.time} - ${article.title.substring(0, 50)}...`);
