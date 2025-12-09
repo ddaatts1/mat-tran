@@ -266,6 +266,8 @@ isWithinOneHour(timeString) {
   filterArticlesByTime(articles) {
     const filtered = articles.filter(article => {
       const isRecent = this.isWithinOneHour(article.time);
+//      const isRecent = true
+
       if (!isRecent) {
         console.log(`   Bỏ qua bài viết cũ: ${article.time} - ${article.title.substring(0, 50)}...`);
       }
@@ -333,10 +335,12 @@ isWithinOneHour(timeString) {
       try {
         const createdAt = this.parseToMysqlDatetime(article.time);
 
+        const slug = this.getSlugFromUrl(article.link)
+
         // 1. Check trùng permalink
         const [exists] = await db.execute(
           'SELECT id FROM posts WHERE permalink = ? LIMIT 1',
-          [article.link]
+          [slug]
         );
 
         if (exists.length > 0) {
@@ -345,7 +349,6 @@ isWithinOneHour(timeString) {
         }
 
 
-        const slug = this.getSlugFromUrl(article.link)
 
 
 await db.execute(
