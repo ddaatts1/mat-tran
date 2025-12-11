@@ -16,7 +16,21 @@ console.log('Scheduler started at:', new Date().toLocaleString('vi-VN'));
 // Cron chạy mỗi đầu giờ
 let isRunning = false;
 
-cron.schedule('0 * * * *', async () => {
+// cron.schedule('0 * * * *', async () => {
+//   if (isRunning) return console.log('Cron đang chạy, bỏ qua');
+//   isRunning = true;
+//   try {
+//     await main();
+//   } catch(err){
+//     console.error(err);
+//   } finally {
+//     isRunning = false;
+//   }
+// });
+
+
+// Cron chạy mỗi 5p
+cron.schedule('*/5 * * * *', async () => {
   if (isRunning) return console.log('Cron đang chạy, bỏ qua');
   isRunning = true;
   try {
@@ -27,5 +41,6 @@ cron.schedule('0 * * * *', async () => {
     isRunning = false;
   }
 });
+
 
 
